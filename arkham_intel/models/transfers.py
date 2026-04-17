@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class AddressInfo(BaseModel):
@@ -69,6 +69,13 @@ class TransfersResponse(BaseModel):
 
     transfers: List[Transfer] = []
 
+    @field_validator("transfers", mode="before")
+    @classmethod
+    def _coerce_transfers(cls, v: Any) -> Any:
+        if v is None:
+            return []
+        return v
+
 
 class TransactionTransfersResponse(BaseModel):
     """Response from ``GET /transfers/tx/{hash}``."""
@@ -76,9 +83,23 @@ class TransactionTransfersResponse(BaseModel):
 
     transfers: List[Transfer] = []
 
+    @field_validator("transfers", mode="before")
+    @classmethod
+    def _coerce_transfers(cls, v: Any) -> Any:
+        if v is None:
+            return []
+        return v
+
 
 class TransfersHistogramResponse(BaseModel):
     """Response from ``GET /transfers/histogram``."""
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     histogram: List[Dict[str, Any]] = []
+
+    @field_validator("histogram", mode="before")
+    @classmethod
+    def _coerce_histogram(cls, v: Any) -> Any:
+        if v is None:
+            return []
+        return v
